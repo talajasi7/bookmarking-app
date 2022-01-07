@@ -1,6 +1,6 @@
 # *BARK* - A bookmarking application
 ## __(from 'Practices of the Python Pro')__
-**BARK** is an elegant bookmarking application where, using a command-line interface, a user chooses options for adding, editing, removing and listing bookmarks stored in a database.
+**BARK** is a bookmarking application where, using a command-line interface, a user chooses options for adding, listing, updating and deleting bookmarks stored in a database.
 
 ## Architecture design
 ---
