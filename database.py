@@ -23,7 +23,7 @@ class DatabaseManager:
             cursor.execute(statement, values or [])
             return cursor
 
-    def create_table(self, table_name: str, columns: dict[str, str]):
+    def create_table(self, table_name: str, columns: dict[str, str]) -> None:
         columns_with_types = [
             f"{column_name} {data_type}" for column_name, data_type in columns.items()
         ]

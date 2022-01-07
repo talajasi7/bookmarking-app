@@ -11,7 +11,7 @@ from database import DatabaseManager
 # Specify the database's location.
 DB_PATH = "data/bookmarks.db"
 
-# Specify database table's name.
+# Specify the database table's name.
 TABLE_NAME = "bookmarks"
 
 # Create an instance of DatabaseManager to be used throughout the commands.
@@ -62,3 +62,7 @@ class DeleteBookmarkCommand:
 class QuitCommand:
     def execute(self):
         sys.exit()
+
+
+if __name__ == "__main__":
+    pass

@@ -2,6 +2,8 @@
 # THE 'PRESENTATION LAYER' OF THE PROGRAM
 #
 
+import os
+
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -74,20 +76,14 @@ def get_bookmark_id_for_deletion():
     return get_user_input("Enter a bookmark ID to delete:")
 
 
-# ----- MAIN LOGIC -----
+# A function for clearing the screen (OS-agnostic).
+def clear_screen():
+    clear = "cls" if os.name == "nt" else "clear"
+    os.system(clear)
+
+
+# Application loop
 def loop():
-    pass
-
-
-if __name__ == "__main__":
-
-    print("====================")
-    print("| Welcome to Bark! |")
-    print("====================")
-
-    # Database initialization (creates 'bookmarks' table if needed)
-    commands.CreateBookmarksTableCommand().execute()
-
     # Menu options definition.
     options = {
         "A": Option(
@@ -108,8 +104,29 @@ if __name__ == "__main__":
     }
 
     # Iterates over menu options and prints them in the CLI-specifications format.
+    clear_screen()
+    print("====================")
+    print("| Welcome to Bark! |")
+    print("====================")
     print_options(options)
 
     # Gets a user's choice of menu option
     chosen_option = get_option_choice(options)
+    clear_screen()
     chosen_option.choose()
+
+    # Allows to pause and wait for the user to press 'Enter' before proceeding,
+    # in order to let the user review the result.
+    _ = input("Press ENTER to return to menu")
+
+
+if __name__ == "__main__":
+
+    # Database initialization (creates 'bookmarks' table if needed)
+    commands.CreateBookmarksTableCommand().execute()
+
+    # Loops forever (until the user chooses the option corresponding to 'QuitCommand')
+    # Now BARK will give the user a way to return to the menu after each interaction,
+    # and the menu gives them an option to exit.
+    while True:
+        loop()
