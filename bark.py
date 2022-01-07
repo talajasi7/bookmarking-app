@@ -9,9 +9,14 @@ import commands
 
 
 class Option:
+    """Class for connecting menu text to business logic commands"""
+
     def __init__(self, name: str, command: commands.Command, prep_call=None):
+        # action's name displayed in the CLI menu
         self.name = name
+        # instance of the command to execute
         self.command = command
+        # optional preparation step to call before executing a command
         self.prep_call = prep_call
 
     def choose(self):
@@ -29,6 +34,10 @@ def print_options(options: dict[str, Option]):
     print()
 
 
+# Functions for managing user choice for the CLI menu options.
+# ---
+
+
 def option_choice_is_valid(choice: str, options: dict[str, Option]):
     return choice.upper() in options
 
@@ -39,6 +48,30 @@ def get_option_choice(options: dict[str, Option]):
         print("Invalid choice")
         choice = input("Choose an option: ")
     return options[choice.upper()]
+
+
+# Functions for gathering bookmark information from the user.
+# ---
+# A general function for prompting users for input
+def get_user_input(label: str, required: bool = True):
+    value = input(f"{label}: ") or None
+    while required and not value:
+        value = input(f"{label}: ") or None
+    return value
+
+
+# A function to get the necessary data for adding a new bookmark
+def get_new_bookmark_data():
+    return {
+        "title": get_user_input("Title"),
+        "url": get_user_input("URL"),
+        "notes": get_user_input("Notes", required=False),
+    }
+
+
+# A function to get the necessary information for deleting a bookmark
+def get_bookmark_id_for_deletion():
+    return get_user_input("Enter a bookmark ID to delete:")
 
 
 # ----- MAIN LOGIC -----
@@ -57,12 +90,20 @@ if __name__ == "__main__":
 
     # Menu options definition.
     options = {
-        "A": Option("Add a bookmark", commands.AddBookmarkCommand()),
+        "A": Option(
+            "Add a bookmark",
+            commands.AddBookmarkCommand(),
+            prep_call=get_new_bookmark_data,
+        ),
         "B": Option("List bookmarks by date", commands.ListBookmarksCommand()),
         "T": Option(
             "List bookmarks by title", commands.ListBookmarksCommand(order_by="title")
         ),
-        "D": Option("Delete a bookmark", commands.DeleteBookmarkCommand()),
+        "D": Option(
+            "Delete a bookmark",
+            commands.DeleteBookmarkCommand(),
+            prep_call=get_bookmark_id_for_deletion,
+        ),
         "Q": Option("Quit", commands.QuitCommand()),
     }
 
