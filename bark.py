@@ -3,6 +3,7 @@
 #
 
 import os
+import time
 
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
@@ -73,7 +74,7 @@ def get_new_bookmark_data():
 
 # A function to get the necessary information for deleting a bookmark
 def get_bookmark_id_for_deletion():
-    return get_user_input("Enter a bookmark ID to delete:")
+    return get_user_input("Enter a bookmark ID to delete")
 
 
 # A function for clearing the screen (OS-agnostic).
@@ -105,9 +106,6 @@ def loop():
 
     # Iterates over menu options and prints them in the CLI-specifications format.
     clear_screen()
-    print("====================")
-    print("| Welcome to Bark! |")
-    print("====================")
     print_options(options)
 
     # Gets a user's choice of menu option
@@ -117,10 +115,18 @@ def loop():
 
     # Allows to pause and wait for the user to press 'Enter' before proceeding,
     # in order to let the user review the result.
-    _ = input("Press ENTER to return to menu")
+    _ = input("\nPress ENTER to return to menu")
 
 
 if __name__ == "__main__":
+
+    clear_screen()
+
+    print("====================================================")
+    print("                 Welcome to Bark!                   ")
+    print("====================================================")
+
+    time.sleep(1.75)
 
     # Database initialization (creates 'bookmarks' table if needed)
     commands.CreateBookmarksTableCommand().execute()
