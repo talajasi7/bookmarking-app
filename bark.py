@@ -2,13 +2,13 @@
 # THE 'PRESENTATION LAYER' OF THE PROGRAM
 #
 
-import os
 import time
 
 # import logging
 # logging.basicConfig(level=logging.DEBUG)
 
 import commands
+from utilities import clear_screen
 
 
 class Option:
@@ -38,9 +38,7 @@ def print_options(options: dict[str, Option]):
 
 
 # Functions for managing user choice for the CLI menu options.
-# ---
-
-
+# ------
 def option_choice_is_valid(choice: str, options: dict[str, Option]):
     return choice.upper() in options
 
@@ -54,7 +52,7 @@ def get_option_choice(options: dict[str, Option]):
 
 
 # Functions for gathering bookmark information from the user.
-# ---
+# ------
 # A general function for prompting users for input
 def get_user_input(label: str, required: bool = True):
     value = input(f"{label}: ") or None
@@ -75,12 +73,6 @@ def get_new_bookmark_data():
 # A function to get the necessary information for deleting a bookmark
 def get_bookmark_id_for_deletion():
     return get_user_input("Enter a bookmark ID to delete")
-
-
-# A function for clearing the screen (OS-agnostic).
-def clear_screen():
-    clear = "cls" if os.name == "nt" else "clear"
-    os.system(clear)
 
 
 # Application loop
