@@ -1,6 +1,6 @@
-#
+# ------
 # THE 'PERSISTENCE LAYER' OF THE PROGRAM
-#
+# ------
 
 import logging
 import sqlite3
@@ -34,6 +34,9 @@ class DatabaseManager:
             """
         )
 
+    def drop_table(self, table_name: str) -> None:
+        self._execute(f"DROP TABLE {table_name};")
+
     def add_record(self, table_name: str, data: dict[str, str]) -> None:
         placeholders = ", ".join("?" * len(data))
         column_names = ", ".join(data.keys())
@@ -48,7 +51,7 @@ class DatabaseManager:
         )
 
     def delete_records(self, table_name: str, criteria: dict[str, str]) -> None:
-        placeholders = (f"{column} = ?" for column in criteria)
+        placeholders = (f"{column} = ?" for column in criteria.keys())
         delete_criteria = " AND ".join(placeholders)
         self._execute(
             f"""
@@ -66,7 +69,7 @@ class DatabaseManager:
         query = f"SELECT * FROM {table_name}"
 
         if criteria:
-            placeholders = (f"{column} = ?" for column in criteria)
+            placeholders = (f"{column} = ?" for column in criteria.keys())
             select_criteria = " AND ".join(placeholders)
             query += f" WHERE {select_criteria}"
 
@@ -74,6 +77,22 @@ class DatabaseManager:
             query += f" ORDER BY {order_by}"
 
         return self._execute(query, tuple(criteria.values()))
+
+    def update_records(
+        self, table_name: str, data: dict[str, str], criteria: dict[str, str]
+    ) -> None:
+        data_placeholders = ", ".join(f"{key} = ?" for key in data.keys())
+        update_placeholders = (f"{column} = ?" for column in criteria.keys())
+        update_criteria = " AND ".join(update_placeholders)
+        values = tuple(data.values()) + tuple(criteria.values())
+        self._execute(
+            f"""
+            UPDATE {table_name}
+            SET {data_placeholders}
+            WHERE {update_criteria};
+            """,
+            values,
+        )
 
 
 if __name__ == "__main__":
