@@ -37,7 +37,7 @@ class DatabaseManager:
     def drop_table(self, table_name: str) -> None:
         self._execute(f"DROP TABLE {table_name};")
 
-    def add_record(self, table_name: str, data: dict[str, str]) -> None:
+    def add(self, table_name: str, data: dict[str, str]) -> None:
         placeholders = ", ".join("?" * len(data))
         column_names = ", ".join(data.keys())
         column_values = tuple(data.values())
@@ -50,18 +50,7 @@ class DatabaseManager:
             column_values,
         )
 
-    def delete_records(self, table_name: str, criteria: dict[str, str]) -> None:
-        placeholders = (f"{column} = ?" for column in criteria.keys())
-        delete_criteria = " AND ".join(placeholders)
-        self._execute(
-            f"""
-            DELETE FROM {table_name}
-            WHERE {delete_criteria};
-            """,
-            tuple(criteria.values()),
-        )
-
-    def select_records(
+    def select(
         self, table_name: str, criteria: dict[str, str] = None, order_by: str = None
     ) -> sqlite3.Cursor:
         criteria = criteria or {}
@@ -78,8 +67,11 @@ class DatabaseManager:
 
         return self._execute(query, tuple(criteria.values()))
 
-    def update_records(
-        self, table_name: str, data: dict[str, str], criteria: dict[str, str]
+    def update(
+        self,
+        table_name: str,
+        criteria: dict[str, str],
+        data: dict[str, str],
     ) -> None:
         data_placeholders = ", ".join(f"{key} = ?" for key in data.keys())
         update_placeholders = (f"{column} = ?" for column in criteria.keys())
@@ -92,6 +84,17 @@ class DatabaseManager:
             WHERE {update_criteria};
             """,
             values,
+        )
+
+    def delete(self, table_name: str, criteria: dict[str, str]) -> None:
+        placeholders = (f"{column} = ?" for column in criteria.keys())
+        delete_criteria = " AND ".join(placeholders)
+        self._execute(
+            f"""
+            DELETE FROM {table_name}
+            WHERE {delete_criteria};
+            """,
+            tuple(criteria.values()),
         )
 
 
@@ -110,7 +113,7 @@ if __name__ == "__main__":
         },
     )
 
-    db_manager.add_record(
+    db_manager.add(
         "bookmarks",
         {
             "title": "GitHub",
@@ -120,13 +123,12 @@ if __name__ == "__main__":
         },
     )
 
-    results_cursor = db_manager.select_records(
+    results_cursor = db_manager.select(
         "bookmarks",
         # criteria={"title": "GitHub"}
     )
     print(results_cursor.fetchall())
 
-    db_manager.delete_records("bookmarks", criteria={"title": "GitHub"})
+    db_manager.delete("bookmarks", criteria={"title": "GitHub"})
 
     del db_manager
-
