@@ -6,7 +6,6 @@
 
 ## Architecture design
 
----
 BARK is based on a multitier architecture pattern to be compliant with the *separation of concerns* design principle. The high-level layers of abstraction for BARK are the following:
 
 - **Presentation layer**: the *command-line interface* (CLI). This is a way to present options to a user and understand which options they choose.
