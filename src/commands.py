@@ -6,68 +6,48 @@ import datetime
 import sys
 from abc import ABC, abstractmethod
 
+# Dependencies from third-party modules.
 import requests
 
-from database import DatabaseManager
+# Dependencies from first-party modules.
+from .persistence import BookmarkDatabase
 
-
-# Specify the database's location.
-DB_PATH = "data/bookmarks.db"
-
-# Specify the database table's name.
-TABLE_NAME = "bookmarks"
-
-# Create an instance of DatabaseManager to be used throughout the commands.
-db = DatabaseManager(DB_PATH)
+# Sets up the persistence layer (this can be swapped in the future)
+persistence = BookmarkDatabase()
 
 
 class Command(ABC):
     @abstractmethod
-    def execute(self):
+    def execute(self, data):
         """Encapsulates and executes the logic of an specific action"""
-
-
-class CreateBookmarksTableCommand(Command):
-    def execute(self):
-        db.create_table(
-            TABLE_NAME,
-            {
-                "id": "integer primary key autoincrement",
-                "title": "text not null",
-                "url": "text not null",
-                "notes": "text",
-                "date_added": "text not null",
-            },
-        )
 
 
 class AddBookmarkCommand(Command):
     def execute(self, data: dict[str, str], timestamp=None) -> str:
         # Fallback to current time if 'timestamp' is not provided
         data["date_added"] = timestamp or datetime.datetime.now().isoformat()
-        db.add_record(TABLE_NAME, data)
-        return "Bookmark added!"
+        persistence.create(data)
+        return True, None
 
 
 class ListBookmarksCommand(Command):
     def __init__(self, order_by: str = "date_added"):
         self.order_by = order_by
 
-    def execute(self) -> list:
-        return db.select_records(TABLE_NAME, order_by=self.order_by).fetchall()
+    def execute(self, data=None) -> list:
+        return True, persistence.list(order_by=self.order_by)
 
 
 class DeleteBookmarkCommand(Command):
-    # Given a repository directory, extract the needed pieces to create a bookmark
     def execute(self, data: dict[str, str]) -> str:
-        db.delete_records(TABLE_NAME, criteria={"id": data})
-        return "Bookmark deleted!"
+        persistence.delete(data)
+        return True, None
 
 
 class EditBookmarkCommand(Command):
     def execute(self, data: dict[str, str]) -> str:
-        db.update_records(TABLE_NAME, data=data["update"], criteria={"id": data["id"]})
-        return "Bookmark updated!"
+        persistence.edit(data["id"], data["update"])
+        return True, None
 
 
 class ImportGitHubStarsCommand(Command):
@@ -115,11 +95,11 @@ class ImportGitHubStarsCommand(Command):
                 )
 
         # Returns a message indicating how many stars were imported
-        return f"Imported {bookmarks_imported} bookmarks from starred repos!"
+        return True, bookmarks_imported
 
 
 class QuitCommand(Command):
-    def execute(self):
+    def execute(self, data=None):
         sys.exit()
 
 
